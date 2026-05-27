@@ -1,6 +1,5 @@
-Run:
-npm install
-node server.js
-
-Login: surname Kalla, code @sry@2026&
-Family series automatic: F001, F002...
+Run backend first: node server.js
+Open login.html with Live Server.
+Surname: Kalla
+Code: @sry@2026&
+Automatic series: F001, F002...

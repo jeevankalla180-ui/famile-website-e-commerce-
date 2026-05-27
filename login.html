@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kalla Family Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Arial,sans-serif}
+body{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#061427,#0f2a4d);color:white}
+.box{width:410px;max-width:92%;background:#0f1f38;border-radius:32px;padding:34px;box-shadow:0 25px 70px rgba(0,0,0,.5);text-align:center;border:1px solid rgba(255,255,255,.12)}
+h1{font-size:35px;margin-bottom:8px;background:linear-gradient(135deg,#38bdf8,#c084fc);-webkit-background-clip:text;color:transparent}
+p{color:#94a3b8;margin-bottom:20px}
+input{width:100%;padding:15px;margin-top:14px;border-radius:18px;background:#07182d;color:white;border:1px solid rgba(255,255,255,.18);outline:none;font-size:16px}
+button{width:100%;margin-top:22px;padding:15px;border:0;border-radius:18px;background:#0ea5e9;color:white;font-size:18px;font-weight:900;cursor:pointer}
+.error{margin-top:15px;color:#f87171;font-weight:800}
+.note{margin-top:12px;color:#facc15;font-size:13px}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Kalla Family Login</h1>
+  <p>Only family members can access</p>
+  <input id="userName" placeholder="Enter Name">
+  <input id="surname" placeholder="Enter Surname">
+  <input id="familyCode" type="password" placeholder="Enter Family Verification Code">
+  <button onclick="login()">Next</button>
+  <div id="errorMsg" class="error"></div>
+  <div class="note">Surname must be Kalla. Backend must run first.</div>
+</div>
+<script>
+async function login(){
+  const name=document.getElementById("userName").value.trim();
+  const surname=document.getElementById("surname").value.trim();
+  const code=document.getElementById("familyCode").value.trim();
+  const errorBox=document.getElementById("errorMsg");
+  errorBox.innerText="";
+  if(!name||!surname||!code){errorBox.innerText="Name, surname and code required";return;}
+  try{
+    const res=await fetch("http://localhost:3000/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,surname,code})});
+    const data=await res.json();
+    if(!res.ok){errorBox.innerText=data.error||"Login failed";return;}
+    localStorage.setItem("family_verified","true");
+    localStorage.setItem("family_login_name",data.name);
+    localStorage.setItem("family_login_surname",data.surname);
+    window.location.href="family.html";
+  }catch(e){errorBox.innerText="Backend not running. Run node server.js first.";}
+}
+</script>
+</body>
+</html>

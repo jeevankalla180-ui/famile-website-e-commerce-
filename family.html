@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kalla Family Neural Network</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{--panel:#0f1f38;--dark:#07182d;--line:#38bdf8;--muted:#94a3b8;--border:rgba(148,163,184,.25)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Arial,sans-serif}
+body{min-height:100vh;background:radial-gradient(circle at top left,rgba(56,189,248,.22),transparent 36%),linear-gradient(135deg,#061427,#0b1730);color:white;padding-bottom:45px}
+button,input,select{font:inherit}button{border:0;cursor:pointer;color:white;font-weight:900}
+.topbar{width:min(1180px,94%);margin:24px auto 0;background:rgba(15,31,56,.88);border:1px solid var(--border);border-radius:30px;padding:24px;box-shadow:0 25px 70px rgba(0,0,0,.45)}
+.main-title{text-align:center;font-size:clamp(32px,5vw,56px);font-weight:900;background:linear-gradient(135deg,#7dd3fc,#c084fc,#86efac);-webkit-background-clip:text;color:transparent}
+.user{text-align:center;color:#bbf7d0;margin-top:8px;font-weight:800}
+.toolbar{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.nav-btn{padding:12px 18px;border-radius:999px;background:linear-gradient(135deg,#1e40af,#0ea5e9)}
+.logout{background:linear-gradient(135deg,#991b1b,#ef4444)!important}
+.dashboard{width:min(1180px,94%);margin:20px auto;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat{background:rgba(15,31,56,.82);border:1px solid var(--border);border-radius:24px;padding:18px;text-align:center}
+.stat h3{font-size:14px;color:var(--muted)}.stat p{font-size:34px;font-weight:900;margin-top:5px}
+.page{display:none;width:min(1180px,94%);margin:20px auto;background:rgba(15,31,56,.88);border:1px solid var(--border);border-radius:34px;padding:26px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.page.active{display:block}.page-title{font-size:clamp(26px,4vw,40px);margin-bottom:12px;color:#bae6fd;border-left:6px solid var(--line);padding-left:14px}
+.logic{color:#cbd5e1;margin-bottom:20px;line-height:1.5}
+.home-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+.home-box{min-height:190px;border-radius:32px;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,4vw,36px);font-weight:900;text-align:center;box-shadow:0 20px 45px rgba(0,0,0,.35);transition:.2s;border:1px solid rgba(255,255,255,.15)}
+.home-box:hover{transform:translateY(-6px) scale(1.01)}
+.nnct{background:linear-gradient(135deg,#064e3b,#16a34a)}.update{background:linear-gradient(135deg,#7c2d12,#f97316)}.death{background:linear-gradient(135deg,#7f1d1d,#dc2626)}.women{background:linear-gradient(135deg,#581c87,#c084fc)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.form-card{background:var(--dark);border:1px solid var(--border);border-radius:24px;padding:20px}.form-card h2{color:#bfdbfe;margin-bottom:10px}
+input,select{width:100%;padding:14px;margin-top:10px;border-radius:16px;border:1px solid var(--border);background:#0b1e36;color:white;outline:none}
+.submit{width:100%;margin-top:14px;padding:14px;border-radius:16px;background:#0ea5e9}.red{background:#dc2626!important}.purple{background:#7c3aed!important}.gray{background:#475569!important}
+.tree-wrap{overflow:auto;padding:20px 5px}.tree{display:flex;justify-content:center;min-width:max-content}
+.tree ul{padding-top:26px;position:relative;display:flex;justify-content:center}.tree li{list-style:none;text-align:center;position:relative;padding:26px 10px 0}
+.tree li::before,.tree li::after{content:"";position:absolute;top:0;width:50%;height:26px;border-top:3px solid var(--line)}.tree li::before{right:50%}.tree li::after{left:50%;border-left:3px solid var(--line)}
+.tree li:only-child::before,.tree li:only-child::after{display:none}.tree li:only-child{padding-top:0}.tree li:first-child::before,.tree li:last-child::after{border:0}.tree li:last-child::before{border-right:3px solid var(--line);border-radius:0 14px 0 0}.tree li:first-child::after{border-radius:14px 0 0 0}.tree ul ul::before{content:"";position:absolute;top:0;left:50%;height:26px;border-left:3px solid var(--line)}
+.member{display:inline-block;min-width:190px;background:linear-gradient(135deg,#102640,#172f52);border:1px solid rgba(125,211,252,.38);border-radius:22px;padding:13px 16px;box-shadow:0 14px 25px rgba(0,0,0,.35)}
+.member strong{display:block}.member small{display:block;color:var(--muted);margin-top:4px}.dead-card,.dead{background:linear-gradient(135deg,#3b0a0a,#7f1d1d)!important;border-color:#ef4444!important}
+.list-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.list-card{background:var(--dark);border:1px solid var(--border);border-radius:22px;padding:18px}.list-card p{color:var(--muted);margin-top:6px}
+.empty{text-align:center;color:var(--muted);font-size:20px;padding:30px}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#020617;color:white;padding:13px 24px;border-radius:999px;border-left:6px solid #38bdf8;z-index:1000;font-weight:800}
+@media(max-width:800px){.dashboard,.home-grid,.form-grid{grid-template-columns:1fr}.member{min-width:150px;font-size:14px}}
+</style>
+</head>
+<body>
+<header class="topbar">
+<h1 class="main-title">⚡ KALLA FAMILY NEURAL NETWORK ⚡</h1>
+<div class="user" id="userBox"></div>
+<nav class="toolbar">
+<button class="nav-btn" onclick="openPage('homePage')">🏠 Home</button>
+<button class="nav-btn" onclick="openPage('nnctPage')">🌐 NNCT</button>
+<button class="nav-btn" onclick="openPage('updatePage')">🛠️ Update & Delete</button>
+<button class="nav-btn" onclick="openPage('deathPage')">💀 Death Tree</button>
+<button class="nav-btn" onclick="openPage('womenPage')">👩 Women Registry</button>
+<button class="nav-btn" onclick="loadFamilies()">🔄 Refresh</button>
+<button class="nav-btn logout" onclick="logout()">Logout</button>
+</nav>
+</header>
+
+<section class="dashboard">
+<div class="stat"><h3>Total Families</h3><p id="totalFamilies">0</p></div>
+<div class="stat"><h3>Total Members</h3><p id="totalMembers">0</p></div>
+<div class="stat"><h3>Women Movement</h3><p id="totalWomen">0</p></div>
+<div class="stat"><h3>Deceased</h3><p id="totalDeath">0</p></div>
+</section>
+
+<section id="homePage" class="page active">
+<h1 class="page-title">🏠 Home Page</h1>
+<div class="home-grid">
+<div class="home-box nnct" onclick="openPage('nnctPage')">🌐 NNCT</div>
+<div class="home-box update" onclick="openPage('updatePage')">🛠️ Update & Delete</div>
+<div class="home-box death" onclick="openPage('deathPage')">💀 Death Tree</div>
+<div class="home-box women" onclick="openPage('womenPage')">👩 Women Registry</div>
+</div>
+</section>
+
+<section id="nnctPage" class="page"><h1 class="page-title">🌐 NNCT</h1><p class="logic">Shows active family neural network tree connections. All current family members visible here.</p><div class="tree-wrap"><div id="nnctTree" class="tree"></div></div></section>
+
+<section id="updatePage" class="page">
+<h1 class="page-title">🛠️ Update And Delete Paths</h1><p class="logic">Add new family members, son marriage family creation, delete members, and update family details. Family series is automatic.</p>
+<div class="form-grid">
+<div class="form-card"><h2>👪 Create Root Family</h2><input id="rootHusband" placeholder="Husband Name"><input id="rootWife" placeholder="Wife Name"><button class="submit" onclick="createFamily()">Create Family Series Automatic</button></div>
+<div class="form-card"><h2>👶 Add Child</h2><input id="childFamilyCode" placeholder="Family Code e.g. F001"><input id="fatherName" placeholder="Father Name"><input id="childName" placeholder="Child Name"><select id="childGender"><option value="male">Male</option><option value="female">Female</option></select><input id="birthDate" placeholder="Birth Date optional"><button class="submit" onclick="addChild()">Add Child</button></div>
+<div class="form-card"><h2>💍 Son Marriage Family Creation</h2><input id="originFamilyCode" placeholder="Origin Family Code"><input id="husbandName" placeholder="Son Name"><input id="wifeName" placeholder="Wife Name"><input id="wifeMovementNote" placeholder="Women movement note e.g. moved from mother family"><button class="submit purple" onclick="createMarriage()">Create Marriage Family Auto Series</button></div>
+<div class="form-card"><h2>💀 Mark Deceased</h2><input id="deceasedFamilyCode" placeholder="Family Code"><input id="deceasedName" placeholder="Person Name"><button class="submit gray" onclick="markDeceased()">Mark Deceased</button></div>
+<div class="form-card"><h2>🗑️ Delete Person</h2><input id="deleteFamilyCode" placeholder="Family Code"><input id="deleteName" placeholder="Person Name"><button class="submit red" onclick="deletePerson()">Permanent Delete</button></div>
+</div>
+</section>
+
+<section id="deathPage" class="page"><h1 class="page-title">💀 Death Path Tree</h1><p class="logic">Stores dead family members history and records.</p><div class="tree-wrap"><div id="deathTree" class="tree"></div></div></section>
+<section id="womenPage" class="page"><h1 class="page-title">👩 Women List</h1><p class="logic">Stores married daughters and women family movement details.</p><div id="womenList" class="list-grid"></div></section>
+
+<script>
+if(localStorage.getItem("family_verified") !== "true"){window.location.href="login.html";}
+const API="http://localhost:3000";let families=[];
+document.getElementById("userBox").innerText="Logged in: "+(localStorage.getItem("family_login_name")||"Family Member")+" "+(localStorage.getItem("family_login_surname")||"");
+function logout(){localStorage.clear();window.location.href="login.html";}
+function openPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById(id).classList.add("active");renderAll();}
+function toast(msg){const old=document.querySelector(".toast");if(old)old.remove();const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2600);}
+function clean(v){return String(v||"").trim();}
+function safe(v){return String(v||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function clearInputs(...ids){ids.forEach(id=>document.getElementById(id).value="");}
+async function api(path,method="GET",body=null){const res=await fetch(API+path,{method,headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):null});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data.error||"API error");return data;}
+async function loadFamilies(){try{families=await api("/api/families");renderAll();}catch(e){toast("Backend error: "+e.message);}}
+function people(){let arr=[];families.forEach(f=>{if(f.husband)arr.push({...f.husband,role:"Husband",familyCode:f.code});if(f.wife)arr.push({...f.wife,role:"Wife",familyCode:f.code});(f.children||[]).forEach(c=>arr.push({...c,role:"Child",familyCode:f.code}));});return arr;}
+function findFamily(code){return families.find(f=>f.code===code);}
+function renderDashboard(){const p=people();document.getElementById("totalFamilies").textContent=families.length;document.getElementById("totalMembers").textContent=p.length;document.getElementById("totalWomen").textContent=p.filter(x=>x.gender==="female").length;document.getElementById("totalDeath").textContent=p.filter(x=>x.deceased).length;}
+function familyHTML(f){const h=f.husband||{name:"Unknown"};const w=f.wife||{name:"Unknown"};let html=`<li><div class="member"><strong>${h.deceased?"💀":"👨"} ${safe(h.name)} ❤️ ${w.deceased?"💀":"👩"} ${safe(w.name)}</strong><small>Family Series: ${safe(f.code)}</small></div>`;if(f.children&&f.children.length){html+="<ul>";f.children.forEach(c=>{const linked=c.marriedFamilyCode?findFamily(c.marriedFamilyCode):null;const icon=c.deceased?"💀":c.gender==="female"?"👧":"👦";html+=`<li><div class="${c.deceased?"member dead":"member"}"><strong>${icon} ${safe(c.name)}</strong><small>${safe(c.gender)} ${c.birthDate?"• "+safe(c.birthDate):""}</small></div>${linked?`<ul>${familyHTML(linked)}</ul>`:""}</li>`;});html+="</ul>";}html+="</li>";return html;}
+function renderNNCT(){const box=document.getElementById("nnctTree");const roots=families.filter(f=>!f.parentFamilyCode);box.innerHTML=roots.length?"<ul>"+roots.map(familyHTML).join("")+"</ul>":"<div class='empty'>No active family network yet. Create first family in Update & Delete.</div>";}
+function renderDeath(){const box=document.getElementById("deathTree");const dead=people().filter(p=>p.deceased);box.innerHTML=dead.length?`<ul><li><div class="member dead"><strong>⚰️ Death Records</strong></div><ul>`+dead.map(p=>`<li><div class="member dead"><strong>💀 ${safe(p.name)}</strong><small>${safe(p.role)} • Family ${safe(p.familyCode)}</small></div></li>`).join("")+`</ul></li></ul>`:"<div class='empty'>No death records yet.</div>";}
+function renderWomen(){const box=document.getElementById("womenList");const women=people().filter(p=>p.gender==="female");box.innerHTML=women.length?women.map(w=>`<div class="list-card ${w.deceased?"dead-card":""}"><h3>${w.role==="Child"?"👧":"👩"} ${safe(w.name)}</h3><p>Family: ${safe(w.familyCode)}</p><p>Role: ${safe(w.role)}</p><p>Status: ${w.deceased?"Deceased":"Alive"}</p><p>Movement: ${safe(w.movementNote||"No movement note")}</p></div>`).join(""):"<div class='empty'>No women movement records yet.</div>";}
+function renderAll(){renderDashboard();renderNNCT();renderDeath();renderWomen();}
+async function createFamily(){try{const data=await api("/api/families","POST",{husbandName:clean(document.getElementById("rootHusband").value),wifeName:clean(document.getElementById("rootWife").value)});toast(data.message);clearInputs("rootHusband","rootWife");loadFamilies();}catch(e){toast(e.message);}}
+async function addChild(){try{const data=await api("/api/children","POST",{familyCode:clean(document.getElementById("childFamilyCode").value).toUpperCase(),fatherName:clean(document.getElementById("fatherName").value),childName:clean(document.getElementById("childName").value),gender:document.getElementById("childGender").value,birthDate:clean(document.getElementById("birthDate").value)});toast(data.message);clearInputs("childFamilyCode","fatherName","childName","birthDate");loadFamilies();}catch(e){toast(e.message);}}
+async function createMarriage(){try{const data=await api("/api/marriage","POST",{originFamilyCode:clean(document.getElementById("originFamilyCode").value).toUpperCase(),husbandName:clean(document.getElementById("husbandName").value),wifeName:clean(document.getElementById("wifeName").value),wifeMovementNote:clean(document.getElementById("wifeMovementNote").value)});toast(data.message);clearInputs("originFamilyCode","husbandName","wifeName","wifeMovementNote");loadFamilies();}catch(e){toast(e.message);}}
+async function markDeceased(){try{const data=await api("/api/person/deceased","PUT",{familyCode:clean(document.getElementById("deceasedFamilyCode").value).toUpperCase(),name:clean(document.getElementById("deceasedName").value)});toast(data.message);clearInputs("deceasedFamilyCode","deceasedName");loadFamilies();}catch(e){toast(e.message);}}
+async function deletePerson(){try{const familyCode=clean(document.getElementById("deleteFamilyCode").value).toUpperCase();const name=clean(document.getElementById("deleteName").value);if(!familyCode||!name){toast("Family code and person name required");return;}if(!confirm("Delete "+name+" from "+familyCode+"?"))return;const data=await api("/api/person","DELETE",{familyCode,name});toast(data.message);clearInputs("deleteFamilyCode","deleteName");loadFamilies();}catch(e){toast(e.message);}}
+loadFamilies();
+</script>
+</body>
+</html>
